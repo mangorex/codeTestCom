@@ -8,24 +8,22 @@
 
         public Price? Price { get; set; }
 
-        public Price CalculatePriceAndSurcharges()
+        public Price CalculatePrice()
         {
             decimal basePrice;
-            decimal extraDayPrice;
             Price = new Price();
 
-            switch(Car.Type)
+            switch (Car.Type)
             {
                 case CarType.Premium:
                     basePrice = Utils.PREMIUM_PRICE;
-                    extraDayPrice = Utils.PREMIUM_PRICE_EXTRA;
                     break;
                 case CarType.Suv:
-                    if(NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
+                    if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
                     {
                         basePrice = Utils.SUV_PRICE;
                     }
-                    else if(NumOfContractedDays <= Utils.SECOND_INTERVAL_DAYS )
+                    else if (NumOfContractedDays <= Utils.SECOND_INTERVAL_DAYS)
                     {
                         basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_SECOND_INTERVAL;
                     }
@@ -34,7 +32,6 @@
                         basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_THIRD_INTERVAL;
                     }
 
-                    extraDayPrice = Utils.SUV_PRICE_EXTRA;
                     break;
                 case CarType.Small:
                     if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
@@ -46,6 +43,36 @@
                         basePrice = Utils.SMALL_PRICE * Utils.SMALL_PRICE_SECOND_INTERVAL;
                     }
 
+                    break;
+                default:
+                    throw new NotImplementedException("Invalid car type.");
+            }
+
+            Price.BasePrice = basePrice * NumOfContractedDays;
+
+            return Price;
+        }
+
+        public Price CalculatePriceAndSurcharges(int numOfDaysUsed)
+        {
+            decimal basePricePerDay;
+            decimal extraDayPrice;
+            Price = new Price();
+
+            CalculatePrice();
+            basePricePerDay = Price.BasePrice/this.NumOfContractedDays;
+            this.NumOfDaysUsed = numOfDaysUsed;
+
+            switch (Car.Type)
+            {
+                case CarType.Premium:
+                    extraDayPrice = Utils.PREMIUM_PRICE_EXTRA;
+                    break;
+                case CarType.Suv:
+
+                    extraDayPrice = Utils.SUV_PRICE_EXTRA;
+                    break;
+                case CarType.Small:
                     extraDayPrice = Utils.SMALL_PRICE_EXTRA;
                     break;
                 default:
@@ -54,27 +81,26 @@
 
             if(NumOfDaysUsed>NumOfContractedDays)
             {
-                Price.Surcharges = basePrice * (NumOfDaysUsed - NumOfContractedDays) + basePrice * extraDayPrice * (NumOfDaysUsed - NumOfContractedDays);
+                int extraDays = (NumOfDaysUsed - NumOfContractedDays);
+                Price.Surcharges = basePricePerDay * extraDays + basePricePerDay * extraDays * extraDayPrice;
             }
-
-            Price.TotalPrice = basePrice * NumOfContractedDays + Price.Surcharges;
 
             return Price;
         }
 
-        public Rentals(Car car, int numOfContractedDays, int numOfDaysUsed)
+        public Rentals(Car car, int numOfContractedDays)
         {
             this.Car = car;
             this.NumOfContractedDays = numOfContractedDays;
-            this.NumOfDaysUsed = numOfDaysUsed;
-            CalculatePriceAndSurcharges();
+
+            CalculatePrice();
         }
 
     }
 
     public class Price
     {
-        public decimal TotalPrice { get; set; }
+        public decimal BasePrice { get; set; }
         public decimal Surcharges { get; set; }
     }
 }
