@@ -6,9 +6,9 @@
         public int NumOfContractedDays { get; set; }
         public int NumOfDaysUsed { get; set; }
 
-        public Price Price { get; set; }
+        public Price? Price { get; set; }
 
-        public void CalculatePriceAndSurcharges()
+        public Price CalculatePriceAndSurcharges()
         {
             decimal basePrice;
             decimal extraDayPrice;
@@ -58,6 +58,8 @@
             }
 
             Price.TotalPrice = basePrice * NumOfContractedDays + Price.Surcharges;
+
+            return Price;
         }
 
         public Rentals(Car car, int numOfContractedDays, int numOfDaysUsed)

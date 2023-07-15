@@ -1,4 +1,6 @@
-﻿namespace codeTestCom.Models
+﻿using System.Text.Json.Serialization;
+
+namespace codeTestCom.Models
 {
     public class Car
     {
@@ -10,8 +12,10 @@
             this.Name = name;
             this.Type = type;
         }
+
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum CarType
     {
         Premium,
