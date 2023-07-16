@@ -1,4 +1,5 @@
 using codeTestCom.Models;
+using codeTestCom.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Concurrent;
@@ -26,11 +27,17 @@ namespace codeTestCom.Controllers
         // The primary key for the Azure Cosmos account.
         private readonly string _primaryKey;
 
-        public RentalController(IConfiguration configuration)
+        private readonly ICarRepository _carRepository;
+        private readonly IRentalRepository _rentalRepository;
+
+        public RentalController(IConfiguration configuration, ICarRepository carRepository, IRentalRepository rentalRepository)
         {
             _configuration = configuration;
+            _carRepository = carRepository;
+            _rentalRepository = rentalRepository;
             _endpointUri = _configuration["appSettings:EndpointUri"];
             _primaryKey = _configuration["appSettings:PrimaryKey"];
+            _rentalRepository = rentalRepository;
         }
 
         [HttpPost("CalculatePrice")]
@@ -48,88 +55,51 @@ namespace codeTestCom.Controllers
         [HttpPost("RentCar")]
         public async Task<ActionResult<Rental>> RentCar(Rental rental)
         {
-            // Create a new instance of the Cosmos Client
-            using (this.cosmosClient = new CosmosClient(_endpointUri, _primaryKey, new CosmosClientOptions() { ApplicationName = "CodeTestComPopulate" }))
+            Car car = await _carRepository.GetCarAsync(rental.CarId);
+            
+            if (car == null)
             {
-                Car car = await GetCarAsync(rental.CarId);
-                if (!car.IsRented)
-                {
-                    rental = await UpdateCarRented(car, rental, true);
-                }
-                else
-                {
-                    return Conflict(Utils.ERROR_CAR_RENTED);
-                }
-                return rental;
-            }
-        }
-
-        private async Task<Car> GetCarAsync(string carId)
-        {
-            Database database = (Database)this.cosmosClient.GetDatabase(databaseId);
-            this.container = database.GetContainer(containerId);
-            var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + carId + "'";
-
-            QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
-            FeedIterator<Car> queryResultSetIterator = this.container.GetItemQueryIterator<Car>(queryDefinition);
-
-            Car car = new Car();
-
-            while (queryResultSetIterator.HasMoreResults)
-            {
-                FeedResponse<Car> currentResultSet = await queryResultSetIterator.ReadNextAsync();
-                foreach (Car item in currentResultSet)
-                {
-                    car = item;
-                }
+                return NotFound("Car not found.");
             }
 
-            return car;
-        }
-
-        private async Task <Rental>UpdateCarRented(Car car, Rental rental, bool rented)
-        {
-            ItemResponse<Car> bmwfieldCarResponse = await this.container.ReadItemAsync<Car>(car.Id, new PartitionKey(car.PartitionKey));
-
-            var itemBody = bmwfieldCarResponse.Resource;
-
-            // update rented status from false to true
-            itemBody.IsRented = rented;
-
-            // replace the item with the updated content
-            bmwfieldCarResponse = await this.container.ReplaceItemAsync<Car>(itemBody, itemBody.Id, new PartitionKey(itemBody.PartitionKey));
-            Console.WriteLine("Updated Car [{0},{1}].\n \tBody is now: {2}\n", itemBody.Name, itemBody.Id, bmwfieldCarResponse.Resource);
-
-            if (itemBody.IsRented)
+            if (car.IsRented)
             {
-                Rental rentalDB = new Rental(car, rental.NumOfContractedDays);
-                rentalDB.CalculatePrice();
-                await PopulateItem(rentalDB, rentalDB.Id, rentalDB.PartitionKey);
-                return rentalDB;
+                return Conflict("The car has already been rented.");
             }
 
-            return null;
+            car.IsRented = true;
+
+            car = await _carRepository.UpdateCarAsync(car, true);
+
+            if(car.IsRented)
+            {
+                Rental rentalDB = new Rental(car, 10);
+
+                rental = await _rentalRepository.CreateRentalAsync(rentalDB);
+            }
+            return rental;
         }
+
 
         // <PopulateItem>
         /// <summary>
         /// Add one item to the container
         /// </summary>
-        private async Task PopulateItem<T>(T item, string id, string partitionKey)
+        private async Task CreateRentalAsync(Rental rental)
         {
             try
             {
                 // Read the item to see if it exists.
-                ItemResponse<T> itemResponse = await this.container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
-                Console.WriteLine("Item in database with id: {0} already exists\n", id);
+                ItemResponse<Rental> itemResponse = await this.container.ReadItemAsync<Rental>(rental.Id, new PartitionKey(rental.PartitionKey));
+                Console.WriteLine("Item in database with id: {0} already exists\n", rental.Id);
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 // Create an item in the container.
-                ItemResponse<T> itemResponse = await this.container.CreateItemAsync<T>(item, new PartitionKey(partitionKey));
+                ItemResponse<Rental> itemResponse = await this.container.CreateItemAsync<Rental>(rental, new PartitionKey(rental.PartitionKey));
 
                 // Note that after creating the item, we can access the body of the item with the Resource property off the ItemResponse. We can also access the RequestCharge property to see the amount of RUs consumed on this request.
-                Console.WriteLine("Created item in database with id: {0} Operation consumed {1} RUs.\n", id, itemResponse.RequestCharge);
+                Console.WriteLine("Created item in database with id: {0} Operation consumed {1} RUs.\n", rental.Id, itemResponse.RequestCharge);
             }
         }
         // </PopulateItem>
