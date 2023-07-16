@@ -5,13 +5,24 @@ namespace codeTestCom.Models
 {
     public class Car
     {
-        public string Name { get; set; }
-        public CarType Type { get; set; }
+        [JsonProperty("id", PropertyName = "id")]
+        public string Id { get; set; }
+        [JsonProperty(PropertyName = "partitionKey")]
+        public string PartitionKey { get; set; }
 
-        public Car(string name, CarType type)
+        public string Name { get; set; }
+        public string Brand { get; set; }
+        public CarType Type { get; set; }
+        public bool IsRented { get; set; }
+
+        public Car(string id, string name, string brand, CarType type)
         {
+            this.Id = id;
             this.Name = name;
+            this.Brand = brand;
             this.Type = type;
+            this.IsRented = false;
+            this.PartitionKey = brand;
         }
         public override string ToString()
         {
