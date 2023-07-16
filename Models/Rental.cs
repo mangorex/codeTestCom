@@ -4,6 +4,10 @@ namespace codeTestCom.Models
 {
     public class Rental
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+        [JsonProperty(PropertyName = "partitionKey")]
+        public string PartitionKey { get; set; }
         public Car Car { get; set; }
         public int NumOfContractedDays { get; set; }
         public int NumOfDaysUsed { get; set; }
@@ -90,12 +94,15 @@ namespace codeTestCom.Models
             return Price;
         }
 
-        public Rental(Car car, int numOfContractedDays)
+        public Rental(string id, Car car, int numOfContractedDays)
         {
+            this.Id = id;
             this.Car = car;
             this.NumOfContractedDays = numOfContractedDays;
+            this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
             CalculatePrice();
         }
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
