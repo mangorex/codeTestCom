@@ -14,6 +14,14 @@ namespace codeTestCom.Models
 
         public Price? Price { get; set; }
 
+        public Rental RentCar()
+        {
+            Car.IsRented = true;
+            this.CalculatePrice();
+
+            return this;
+        }
+
         public Price CalculatePrice()
         {
             decimal basePrice;

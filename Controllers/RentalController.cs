@@ -14,6 +14,12 @@ namespace codeTestCom.Controllers
             return rental.CalculatePrice();
         }
 
+        [HttpPost("RentCar")]
+        public ActionResult<Rental> RentCar(Rental rental)
+        {
+            return rental.RentCar();
+        }
+
         [HttpPost("CalculatePriceAndSurcharges")]
         public ActionResult<Price> CalculatePriceAndSurcharges(Rental rental)
         {
