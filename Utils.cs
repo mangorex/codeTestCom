@@ -1,4 +1,6 @@
-﻿namespace codeTestCom
+﻿using codeTestCom.Models;
+
+namespace codeTestCom
 {
     public class Utils
     {
@@ -24,6 +26,8 @@
         public const int SECOND_INTERVAL_DAYS = 30;
         #endregion
 
+        public const string ERROR_CAR_RENTED = "The car had already been rented";
         #endregion
+
     }
 }

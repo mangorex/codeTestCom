@@ -1,25 +1,35 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace codeTestCom.Models
 {
     public class Rental
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         [JsonProperty(PropertyName = "partitionKey")]
-        public string PartitionKey { get; set; }
-        public Car Car { get; set; }
+        public string? PartitionKey { get; set; }
+        public string CarId { get; set; }
         public int NumOfContractedDays { get; set; }
+
         public int NumOfDaysUsed { get; set; }
 
         public Price? Price { get; set; }
+        public CarType CarType { get; set; }
 
-        public Rental RentCar()
+        [JsonConstructor]
+        public Rental()
         {
-            Car.IsRented = true;
-            this.CalculatePrice();
+            // Constructor sin parámetros o inicialización personalizada
+        }
 
-            return this;
+        public Rental(Car car, int numOfContractedDays)
+        {
+            this.Id = Guid.NewGuid().ToString();
+            this.CarId = car.Id;
+            this.CarType = car.Type;
+            this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
+            this.NumOfContractedDays = numOfContractedDays;
         }
 
         public Price CalculatePrice()
@@ -27,7 +37,7 @@ namespace codeTestCom.Models
             decimal basePrice;
             Price = new Price();
 
-            switch (Car.Type)
+            switch (CarType)
             {
                 case CarType.Premium:
                     basePrice = Utils.PREMIUM_PRICE;
@@ -77,7 +87,7 @@ namespace codeTestCom.Models
             basePricePerDay = Price.BasePrice / this.NumOfContractedDays;
             this.NumOfDaysUsed = numOfDaysUsed;
 
-            switch (Car.Type)
+            switch (CarType)
             {
                 case CarType.Premium:
                     extraDayPrice = Utils.PREMIUM_PRICE_EXTRA;
@@ -102,14 +112,6 @@ namespace codeTestCom.Models
             return Price;
         }
 
-        public Rental(string id, Car car, int numOfContractedDays)
-        {
-            this.Id = id;
-            this.Car = car;
-            this.NumOfContractedDays = numOfContractedDays;
-            this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
-            CalculatePrice();
-        }
 
         public override string ToString()
         {

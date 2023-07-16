@@ -15,6 +15,12 @@ namespace codeTestCom.Models
         public CarType Type { get; set; }
         public bool IsRented { get; set; }
 
+        [System.Text.Json.Serialization.JsonConstructor]
+        public Car()
+        {
+            // Constructor sin parámetros o inicialización personalizada
+        }
+
         public Car(string id, string name, string brand, CarType type)
         {
             this.Id = id;
