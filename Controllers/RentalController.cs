@@ -9,13 +9,13 @@ namespace codeTestCom.Controllers
     {
 
         [HttpPost("CalculatePrice")]
-        public ActionResult<Price> CalculatePrice(Rentals rental)
+        public ActionResult<Price> CalculatePrice(Rental rental)
         {
             return rental.CalculatePrice();
         }
 
         [HttpPost("CalculatePriceAndSurcharges")]
-        public ActionResult<Price> CalculatePriceAndSurcharges(Rentals rental)
+        public ActionResult<Price> CalculatePriceAndSurcharges(Rental rental)
         {
            return rental.CalculatePriceAndSurcharges(rental.NumOfDaysUsed);
         }

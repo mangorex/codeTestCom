@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace codeTestCom.Models
 {
@@ -12,10 +13,14 @@ namespace codeTestCom.Models
             this.Name = name;
             this.Type = type;
         }
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
 
     }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
     public enum CarType
     {
         Premium,

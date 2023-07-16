@@ -1,6 +1,8 @@
-﻿namespace codeTestCom.Models
+﻿using Newtonsoft.Json;
+
+namespace codeTestCom.Models
 {
-    public class Rentals
+    public class Rental
     {
         public Car Car { get; set; }
         public int NumOfContractedDays { get; set; }
@@ -60,7 +62,7 @@
             Price = new Price();
 
             CalculatePrice();
-            basePricePerDay = Price.BasePrice/this.NumOfContractedDays;
+            basePricePerDay = Price.BasePrice / this.NumOfContractedDays;
             this.NumOfDaysUsed = numOfDaysUsed;
 
             switch (Car.Type)
@@ -79,7 +81,7 @@
                     throw new NotImplementedException("Invalid car type.");
             }
 
-            if(NumOfDaysUsed>NumOfContractedDays)
+            if (NumOfDaysUsed > NumOfContractedDays)
             {
                 int extraDays = (NumOfDaysUsed - NumOfContractedDays);
                 Price.Surcharges = basePricePerDay * extraDays + basePricePerDay * extraDays * extraDayPrice;
@@ -88,14 +90,16 @@
             return Price;
         }
 
-        public Rentals(Car car, int numOfContractedDays)
+        public Rental(Car car, int numOfContractedDays)
         {
             this.Car = car;
             this.NumOfContractedDays = numOfContractedDays;
-
             CalculatePrice();
         }
-
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 
     public class Price
