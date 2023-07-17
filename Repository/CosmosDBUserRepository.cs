@@ -64,5 +64,15 @@ namespace codeTestCom.Repository
 
             return item;
         }
+
+        public async Task<User> AddUserAsync(User user)
+        {
+            User userNew = new User(user.Name, user.Surname, user.Dni, user.Age, user.Sex);
+
+            userNew.PartitionKey = userNew.Sex.ToString();
+
+            ItemResponse<User> response = await _container.CreateItemAsync(userNew, new PartitionKey(userNew.PartitionKey));
+            return response.Resource;
+        }
     }
 }

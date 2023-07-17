@@ -6,5 +6,6 @@ namespace codeTestCom.Repository
     {
         Task<User> GetUserAsyncByDni(string id);
         Task<User> UpdateUserLoyaltyAsync(User user, int loyaltyPoints);
+        Task<User> AddUserAsync(User user);
     }
 }

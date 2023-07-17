@@ -24,5 +24,19 @@ namespace codeTestCom.Controllers
         {
             return await _userRepository.GetUserAsyncByDni(dni);
         }
+
+        [HttpPost("AddUser")]
+        public async Task<ActionResult<User>> AddUser(User user)
+        {
+            try
+            {
+                var createdUser = await _userRepository.AddUserAsync(user);
+                return Ok(createdUser);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
