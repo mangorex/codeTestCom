@@ -20,13 +20,13 @@ namespace codeTestCom.Controllers
             _rentalRepository = rentalRepository;
         }
 
-        [HttpPost("CalculatePrice")]
+        [HttpGet("CalculatePrice")]
         public ActionResult<Price> CalculatePrice(Rental rental)
         {
             return rental.CalculatePrice();
         }
 
-        [HttpPost("CalculatePriceAndSurcharges")]
+        [HttpGet("CalculatePriceAndSurcharges")]
         public async Task<ActionResult<Price>> CalculatePriceAndSurcharges(string id, int numOfDaysUsed)
         {
             Rental rentalDB = await _rentalRepository.GetRentalAsync(id);
