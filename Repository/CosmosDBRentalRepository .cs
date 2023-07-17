@@ -48,5 +48,27 @@ namespace codeTestCom.Repository
             return rental;
             
         }
+
+        public async Task<Rental> GetRentalAsync(string id)
+        {
+            var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + id + "'";
+
+            QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
+            FeedIterator<Rental> queryResultSetIterator = _container.GetItemQueryIterator<Rental>(queryDefinition);
+
+            Rental rental = new Rental();
+
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                FeedResponse<Rental> currentResultSet = await queryResultSetIterator.ReadNextAsync();
+                foreach (Rental item in currentResultSet)
+                {
+                    rental = item;
+                    break;
+                }
+            }
+
+            return rental;
+        }
     }
 }

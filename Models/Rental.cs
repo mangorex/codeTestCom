@@ -81,9 +81,7 @@ namespace codeTestCom.Models
         {
             decimal basePricePerDay;
             decimal extraDayPrice;
-            Price = new Price();
 
-            CalculatePrice();
             basePricePerDay = Price.BasePrice / this.NumOfContractedDays;
             this.NumOfDaysUsed = numOfDaysUsed;
 

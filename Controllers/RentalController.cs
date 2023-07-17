@@ -27,9 +27,16 @@ namespace codeTestCom.Controllers
         }
 
         [HttpPost("CalculatePriceAndSurcharges")]
-        public ActionResult<Price> CalculatePriceAndSurcharges(Rental rental)
+        public async Task<ActionResult<Price>> CalculatePriceAndSurcharges(string id, int numOfDaysUsed)
         {
-            return rental.CalculatePriceAndSurcharges(rental.NumOfDaysUsed);
+            Rental rentalDB = await _rentalRepository.GetRentalAsync(id);
+
+            if(string.IsNullOrWhiteSpace(rentalDB.Id))
+            {
+                return null;
+            }
+
+            return rentalDB.CalculatePriceAndSurcharges(numOfDaysUsed);
         }
 
         [HttpPost("RentCar")]
@@ -59,6 +66,5 @@ namespace codeTestCom.Controllers
             }
             return rental;
         }
-
     }
 }

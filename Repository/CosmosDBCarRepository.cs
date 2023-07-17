@@ -26,9 +26,9 @@ namespace codeTestCom.Repository
             _container = _database.GetContainer(Utils.CONTAINER_CAR_ID);
         }
 
-        public async Task<Car> GetCarAsync(string carId)
+        public async Task<Car> GetCarAsync(string id)
         {
-            var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + carId + "'";
+            var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + id + "'";
 
             QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
             FeedIterator<Car> queryResultSetIterator = _container.GetItemQueryIterator<Car>(queryDefinition);
@@ -41,6 +41,7 @@ namespace codeTestCom.Repository
                 foreach (Car item in currentResultSet)
                 {
                     car = item;
+                    break;
                 }
             }
 
