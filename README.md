@@ -5,7 +5,7 @@
 ## END DATE: 17/07/2023
 
 It is about a development in C# with .net 6 in a console application
-
+This proyect has been developed from Scratch with the template Web Api .net 6
 ### Architecture and technologies used
 * **Windows 10**
 * **Net core 6**
