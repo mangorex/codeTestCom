@@ -23,7 +23,7 @@ namespace codeTestCom.Repository
             _primaryKey = configuration["appSettings:PrimaryKey"];
             _cosmosClient = new CosmosClient(_endpointUri, _primaryKey, new CosmosClientOptions() { ApplicationName = "CodeTestCom" });
             _database = (Database)_cosmosClient.GetDatabase(Utils.DATABASE_ID);
-            _container = _database.GetContainer(Utils.CONTAINER_ID);
+            _container = _database.GetContainer(Utils.CONTAINER_CAR_ID);
         }
 
         public async Task<Car> GetCarAsync(string carId)

@@ -28,7 +28,8 @@ namespace codeTestCom
 
         public const string ERROR_CAR_RENTED = "The car had already been rented";
         public const string DATABASE_ID = "RentalDB";
-        public const string CONTAINER_ID = "Items";
+        public const string CONTAINER_CAR_ID = "Cars";
+        public const string CONTAINER_RENTAL_ID = "Rentals";
 
         #endregion
 
