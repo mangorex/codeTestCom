@@ -45,6 +45,10 @@ namespace codeTestCom.Controllers
         [HttpPost("RentCar")]
         public async Task<ActionResult<Rental>> RentCar(Rental rental)
         {
+            if(rental.CarId == null)
+            {
+                return NotFound("Car Id not found.");
+            }
             Car car = await _carRepository.GetCarAsyncById(rental.CarId);
             User user = await _userRepository.GetUserAsyncByDni(rental.UserId);
 
@@ -70,6 +74,48 @@ namespace codeTestCom.Controllers
                 await _userRepository.UpdateUserLoyaltyAsync(user, Utils.CalculateLoyaltyPoints(car.Type));
             }
             return rental;
+        }
+
+
+
+        [HttpPost("RentMultipleCar")]
+        public async Task<ActionResult> RentMultipleCar([FromBody] RentMultipleCarRequest request)
+        {
+            List<object> dataList = new List<object>();
+            Rental rental = request.Rental;
+            User user = await _userRepository.GetUserAsyncByDni(rental.UserId);
+            decimal totalPrice = 0;
+
+            foreach (string carId in request.CarIds)
+            {
+                Car car = await _carRepository.GetCarAsyncById(carId);
+
+                if (car != null && !car.IsRented)
+                {
+                    car.IsRented = true;
+
+                    car = await _carRepository.UpdateCarAsync(car, true);
+
+                    if (car.IsRented)
+                    {
+                        Rental rentalDB = new Rental(car, rental.NumOfContractedDays, user.Dni);
+
+                        rental = await _rentalRepository.CreateRentalAsync(rentalDB);
+                        await _userRepository.UpdateUserLoyaltyAsync(user, Utils.CalculateLoyaltyPoints(car.Type));
+                        dataList.Add(new {Precio = rental.Price.BasePrice, Car = rental.CarId });
+                        totalPrice += rental.Price.BasePrice;
+                    }
+                }
+            }
+
+            var infoList = new
+            {
+                Dni = user.Dni,
+                TotalPrice = totalPrice,
+                DataList = dataList
+            };
+
+            return Ok(infoList);
         }
 
         [HttpPost("ReturnCar")]

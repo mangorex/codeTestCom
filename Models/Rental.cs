@@ -9,7 +9,7 @@ namespace codeTestCom.Models
         public string? Id { get; set; }
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
-        public string CarId { get; set; }
+        public string? CarId { get; set; }
         public int NumOfContractedDays { get; set; }
 
         public int NumOfDaysUsed { get; set; }
@@ -132,5 +132,11 @@ namespace codeTestCom.Models
         public decimal BasePrice { get; set; }
         public decimal Surcharges { get; set; }
         public decimal? TotalPrice { get; set; }
+    }
+
+    public class RentMultipleCarRequest
+    {
+        public Rental Rental { get; set; }
+        public List<string> CarIds { get; set; }
     }
 }
