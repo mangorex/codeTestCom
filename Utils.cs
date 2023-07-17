@@ -31,7 +31,33 @@ namespace codeTestCom
         public const string CONTAINER_CAR_ID = "Cars";
         public const string CONTAINER_RENTAL_ID = "Rentals";
         public const string CONTAINER_USER_ID = "Users";
+        public const int LOYALTY_PREMIUM = 5;
+        public const int LOYALTY_SUV = 3;
+        public const int LOYALTY_SMALL = 1;
 
+        #region COMMON_METHODS
+        public static int CalculateLoyaltyPoints(CarType carType)
+        {
+            int loyaltyPoints;
+
+            switch (carType)
+            {
+                case CarType.Premium:
+                    loyaltyPoints = Utils.LOYALTY_PREMIUM;
+                    break;
+                case CarType.Suv:
+                    loyaltyPoints = Utils.LOYALTY_SUV;
+                    break;
+                case CarType.Small:
+                    loyaltyPoints = Utils.LOYALTY_SMALL;
+                    break;
+                default:
+                    throw new NotImplementedException("Invalid car type.");
+            }
+
+            return loyaltyPoints;
+        }
+        #endregion
         #endregion
 
     }

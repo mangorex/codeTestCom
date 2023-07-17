@@ -29,7 +29,7 @@ namespace codeTestCom.Repository
 
         public async Task<User> GetUserAsyncByDni(string dni)
         {
-            var sqlQueryText = "SELECT * FROM c WHERE c.Dni = '" + dni + "'";
+            var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + dni + "'";
 
             QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
             FeedIterator<User> queryResultSetIterator = _container.GetItemQueryIterator<User>(queryDefinition);
@@ -56,7 +56,7 @@ namespace codeTestCom.Repository
             var item = fieldResponse.Resource;
 
             // update rented status from false to true
-            item.LoyaltyPoints = loyaltyPoints;
+            item.LoyaltyPoints += loyaltyPoints;
 
             // replace the item with the updated content
             fieldResponse = await _container.ReplaceItemAsync<User>(item, item.Dni, new PartitionKey(item.PartitionKey));

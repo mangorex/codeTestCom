@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Concurrent;
 using System.Net;
+using User = codeTestCom.Models.User;
 
 namespace codeTestCom.Controllers
 {
@@ -13,11 +14,13 @@ namespace codeTestCom.Controllers
     {
         private readonly ICarRepository _carRepository;
         private readonly IRentalRepository _rentalRepository;
+        private readonly IUserRepository _userRepository;
 
-        public RentalController(ICarRepository carRepository, IRentalRepository rentalRepository)
+        public RentalController(ICarRepository carRepository, IRentalRepository rentalRepository, IUserRepository userRepository)
         {
             _carRepository = carRepository;
             _rentalRepository = rentalRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet("CalculatePrice")]
@@ -43,7 +46,8 @@ namespace codeTestCom.Controllers
         public async Task<ActionResult<Rental>> RentCar(Rental rental)
         {
             Car car = await _carRepository.GetCarAsyncById(rental.CarId);
-            
+            User user = await _userRepository.GetUserAsyncByDni(rental.UserId);
+
             if (car == null)
             {
                 return NotFound("Car not found.");
@@ -60,9 +64,10 @@ namespace codeTestCom.Controllers
 
             if(car.IsRented)
             {
-                Rental rentalDB = new Rental(car, rental.NumOfContractedDays);
+                Rental rentalDB = new Rental(car, rental.NumOfContractedDays, user.Dni);
 
                 rental = await _rentalRepository.CreateRentalAsync(rentalDB);
+                await _userRepository.UpdateUserLoyaltyAsync(user, Utils.CalculateLoyaltyPoints(car.Type));
             }
             return rental;
         }

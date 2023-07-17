@@ -17,6 +17,7 @@ namespace codeTestCom.Models
         public Price? Price { get; set; }
         public CarType CarType { get; set; }
         public bool IsCarReturned { get; set; }
+        public string UserId { get; set; }
 
         [JsonConstructor]
         public Rental()
@@ -25,13 +26,14 @@ namespace codeTestCom.Models
             this.IsCarReturned = false;
         }
 
-        public Rental(Car car, int numOfContractedDays)
+        public Rental(Car car, int numOfContractedDays, string dni)
         {
             this.Id = Guid.NewGuid().ToString();
             this.CarId = car.Id;
             this.CarType = car.Type;
             this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
             this.NumOfContractedDays = numOfContractedDays;
+            this.UserId = dni;
             this.IsCarReturned = false;
         }
 
@@ -118,7 +120,6 @@ namespace codeTestCom.Models
             this.Price.TotalPrice = this.Price.BasePrice + this.Price.Surcharges;
             return Price;
         }
-
 
         public override string ToString()
         {
