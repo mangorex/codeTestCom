@@ -36,6 +36,8 @@ namespace codeTestCom.Repository
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
+                rental.CalculatePrice();
+
                 // Create an item in the container.
                 ItemResponse<Rental> itemResponse = await _container.CreateItemAsync<Rental>(rental, new PartitionKey(rental.PartitionKey));
 
@@ -43,7 +45,6 @@ namespace codeTestCom.Repository
                 Console.WriteLine("Created item in database with id: {0} Operation consumed {1} RUs.\n", rental.Id, itemResponse.RequestCharge);
             }
 
-            rental.CalculatePrice();
             return rental;
             
         }
