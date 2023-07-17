@@ -15,6 +15,7 @@ namespace codeTestCom
             // Add services to the container.
             builder.Services.AddScoped<ICarRepository, CosmosDBCarRepository>();
             builder.Services.AddScoped<IRentalRepository, CosmosDBRentalRepository>();
+            builder.Services.AddScoped<IUserRepository, CosmosDBUserRepository>();
 
             // Add other services and configurations here
 

@@ -30,6 +30,7 @@ namespace codeTestCom
         public const string DATABASE_ID = "RentalDB";
         public const string CONTAINER_CAR_ID = "Cars";
         public const string CONTAINER_RENTAL_ID = "Rentals";
+        public const string CONTAINER_USER_ID = "Users";
 
         #endregion
 
