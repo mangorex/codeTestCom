@@ -63,5 +63,12 @@ namespace codeTestCom.Repository
 
             return item;
         }
+        public async Task<Car> AddCarAsync(Car car)
+        {
+            Car userNew = new Car(car.Id, car.Name, car.Brand, car.Type);
+            userNew.PartitionKey = car.Brand.ToString();
+            ItemResponse<Car> response = await _container.CreateItemAsync(userNew, new PartitionKey(userNew.PartitionKey));
+            return response.Resource;
+        }
     }
 }

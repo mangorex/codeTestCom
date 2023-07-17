@@ -8,7 +8,7 @@ namespace codeTestCom.Models
         [JsonProperty("id", PropertyName = "id")]
         public string Id { get; set; }
         [JsonProperty(PropertyName = "partitionKey")]
-        public string PartitionKey { get; set; }
+        public string? PartitionKey { get; set; }
 
         public string Name { get; set; }
         public string Brand { get; set; }
