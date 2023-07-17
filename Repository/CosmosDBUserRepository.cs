@@ -51,7 +51,7 @@ namespace codeTestCom.Repository
 
         public async Task<User> UpdateUserLoyaltyAsync(User user, int loyaltyPoints)
         {
-            ItemResponse<User> fieldResponse = await _container.ReadItemAsync<User>(user.Id, new PartitionKey(user.PartitionKey));
+            ItemResponse<User> fieldResponse = await _container.ReadItemAsync<User>(user.Dni, new PartitionKey(user.PartitionKey));
 
             var item = fieldResponse.Resource;
 
@@ -59,8 +59,8 @@ namespace codeTestCom.Repository
             item.LoyaltyPoints = loyaltyPoints;
 
             // replace the item with the updated content
-            fieldResponse = await _container.ReplaceItemAsync<User>(item, item.Id, new PartitionKey(item.PartitionKey));
-            Console.WriteLine("Updated User [{0},{1}].\n \tBody is now: {2}\n", item.Id, item.LoyaltyPoints, fieldResponse.Resource);
+            fieldResponse = await _container.ReplaceItemAsync<User>(item, item.Dni, new PartitionKey(item.PartitionKey));
+            Console.WriteLine("Updated User [{0},{1}].\n \tBody is now: {2}\n", item.Dni, item.LoyaltyPoints, fieldResponse.Resource);
 
             return item;
         }
