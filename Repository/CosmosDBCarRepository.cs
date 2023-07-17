@@ -26,7 +26,7 @@ namespace codeTestCom.Repository
             _container = _database.GetContainer(Utils.CONTAINER_CAR_ID);
         }
 
-        public async Task<Car> GetCarAsync(string id)
+        public async Task<Car> GetCarAsyncById(string id)
         {
             var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + id + "'";
 
@@ -50,16 +50,16 @@ namespace codeTestCom.Repository
 
         public async Task<Car> UpdateCarAsync(Car car, bool rented)
         {
-            ItemResponse<Car> bmwfieldCarResponse = await _container.ReadItemAsync<Car>(car.Id, new PartitionKey(car.PartitionKey));
+            ItemResponse<Car> fieldResponse = await _container.ReadItemAsync<Car>(car.Id, new PartitionKey(car.PartitionKey));
 
-            var item = bmwfieldCarResponse.Resource;
+            var item = fieldResponse.Resource;
 
             // update rented status from false to true
             item.IsRented = rented;
 
             // replace the item with the updated content
-            bmwfieldCarResponse = await _container.ReplaceItemAsync<Car>(item, item.Id, new PartitionKey(item.PartitionKey));
-            Console.WriteLine("Updated Car [{0},{1}].\n \tBody is now: {2}\n", item.Name, item.Id, bmwfieldCarResponse.Resource);
+            fieldResponse = await _container.ReplaceItemAsync<Car>(item, item.Id, new PartitionKey(item.PartitionKey));
+            Console.WriteLine("Updated Car [{0},{1}].\n \tBody is now: {2}\n", item.Name, item.Id, fieldResponse.Resource);
 
             return item;
         }

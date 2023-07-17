@@ -29,7 +29,7 @@ namespace codeTestCom.Controllers
         [HttpGet("CalculatePriceAndSurcharges")]
         public async Task<ActionResult<Price>> CalculatePriceAndSurcharges(string id, int numOfDaysUsed)
         {
-            Rental rentalDB = await _rentalRepository.GetRentalAsync(id);
+            Rental rentalDB = await _rentalRepository.GetRentalAsyncById(id);
 
             if(string.IsNullOrWhiteSpace(rentalDB.Id))
             {
@@ -42,7 +42,7 @@ namespace codeTestCom.Controllers
         [HttpPost("RentCar")]
         public async Task<ActionResult<Rental>> RentCar(Rental rental)
         {
-            Car car = await _carRepository.GetCarAsync(rental.CarId);
+            Car car = await _carRepository.GetCarAsyncById(rental.CarId);
             
             if (car == null)
             {
@@ -60,10 +60,31 @@ namespace codeTestCom.Controllers
 
             if(car.IsRented)
             {
-                Rental rentalDB = new Rental(car, 10);
+                Rental rentalDB = new Rental(car, rental.NumOfContractedDays);
 
                 rental = await _rentalRepository.CreateRentalAsync(rentalDB);
             }
+            return rental;
+        }
+
+        [HttpPost("ReturnCar")]
+        public async Task<ActionResult<Rental>> ReturnCar(string carId, int numOfDaysUsed)
+        {
+            Car car = await _carRepository.GetCarAsyncById(carId);
+
+            if (car == null)
+            {
+                return NotFound("Car not found.");
+            }
+
+            if (!car.IsRented)
+            {
+                return Conflict("The car has not been rented.");
+            }
+
+            car = await _carRepository.UpdateCarAsync(car, false);
+            Rental rental = await _rentalRepository.GetRentalAsyncByCarId(carId);
+            rental.CalculatePriceAndSurcharges(numOfDaysUsed);
             return rental;
         }
     }

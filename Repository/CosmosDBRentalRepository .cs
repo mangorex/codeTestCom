@@ -49,7 +49,7 @@ namespace codeTestCom.Repository
             
         }
 
-        public async Task<Rental> GetRentalAsync(string id)
+        public async Task<Rental> GetRentalAsyncById(string id)
         {
             var sqlQueryText = "SELECT * FROM c WHERE c.id = '" + id + "'";
 
@@ -69,6 +69,44 @@ namespace codeTestCom.Repository
             }
 
             return rental;
+        }
+
+        public async Task<Rental> GetRentalAsyncByCarId(string carId)
+        {
+            var sqlQueryText = "SELECT * FROM c WHERE c.CarId = '" + carId + "'";
+
+            QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
+            FeedIterator<Rental> queryResultSetIterator = _container.GetItemQueryIterator<Rental>(queryDefinition);
+
+            Rental rental = new Rental();
+
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                FeedResponse<Rental> currentResultSet = await queryResultSetIterator.ReadNextAsync();
+                foreach (Rental item in currentResultSet)
+                {
+                    rental = item;
+                    break;
+                }
+            }
+
+            return rental;
+        }
+
+        public async Task<Rental> UpdateRentalAsync(Rental rental)
+        {
+            ItemResponse<Rental> fieldResponse = await _container.ReadItemAsync<Rental>(rental.Id, new PartitionKey(rental.PartitionKey));
+
+            var item = fieldResponse.Resource;
+
+            // update is car returned from false to true
+            item.IsCarReturned = true;
+
+            // replace the item with the updated content
+            fieldResponse = await _container.ReplaceItemAsync<Rental>(item, item.Id, new PartitionKey(item.PartitionKey));
+            Console.WriteLine("Updated Rental [{0},{1}].\n \tBody is now: {2}\n", item.CarId, item.Id, fieldResponse.Resource);
+
+            return item;
         }
     }
 }

@@ -16,11 +16,13 @@ namespace codeTestCom.Models
 
         public Price? Price { get; set; }
         public CarType CarType { get; set; }
+        public bool IsCarReturned { get; set; }
 
         [JsonConstructor]
         public Rental()
         {
             // Constructor sin parámetros o inicialización personalizada
+            this.IsCarReturned = false;
         }
 
         public Rental(Car car, int numOfContractedDays)
@@ -30,41 +32,42 @@ namespace codeTestCom.Models
             this.CarType = car.Type;
             this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
             this.NumOfContractedDays = numOfContractedDays;
+            this.IsCarReturned = false;
         }
 
         public Price CalculatePrice()
         {
-            decimal basePrice;
+            decimal dayBasePrice;
             Price = new Price();
 
             switch (CarType)
             {
                 case CarType.Premium:
-                    basePrice = Utils.PREMIUM_PRICE;
+                    dayBasePrice = Utils.PREMIUM_PRICE;
                     break;
                 case CarType.Suv:
                     if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
                     {
-                        basePrice = Utils.SUV_PRICE;
+                        dayBasePrice = Utils.SUV_PRICE;
                     }
                     else if (NumOfContractedDays <= Utils.SECOND_INTERVAL_DAYS)
                     {
-                        basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_SECOND_INTERVAL;
+                        dayBasePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_SECOND_INTERVAL;
                     }
                     else
                     {
-                        basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_THIRD_INTERVAL;
+                        dayBasePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_THIRD_INTERVAL;
                     }
 
                     break;
                 case CarType.Small:
                     if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
                     {
-                        basePrice = Utils.SMALL_PRICE;
+                        dayBasePrice = Utils.SMALL_PRICE;
                     }
                     else
                     {
-                        basePrice = Utils.SMALL_PRICE * Utils.SMALL_PRICE_SECOND_INTERVAL;
+                        dayBasePrice = Utils.SMALL_PRICE * Utils.SMALL_PRICE_SECOND_INTERVAL;
                     }
 
                     break;
@@ -72,8 +75,13 @@ namespace codeTestCom.Models
                     throw new NotImplementedException("Invalid car type.");
             }
 
-            Price.BasePrice = basePrice * NumOfContractedDays;
+            decimal basePrice = dayBasePrice * NumOfContractedDays;
 
+            Price = new Price()
+            {
+                BasePrice = basePrice,
+                TotalPrice = basePrice
+            };
             return Price;
         }
 
@@ -107,6 +115,7 @@ namespace codeTestCom.Models
                 Price.Surcharges = basePricePerDay * extraDays + basePricePerDay * extraDays * extraDayPrice;
             }
 
+            this.Price.TotalPrice = this.Price.BasePrice + this.Price.Surcharges;
             return Price;
         }
 
@@ -121,5 +130,6 @@ namespace codeTestCom.Models
     {
         public decimal BasePrice { get; set; }
         public decimal Surcharges { get; set; }
+        public decimal? TotalPrice { get; set; }
     }
 }
