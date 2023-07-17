@@ -11,7 +11,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesPremiumExactDaysTest()
         {
             Car car = new Car("0000AAA", "BMW 7", "BMW", CarType.Premium);
-            Rental rental = new Rental(car, 10);
+            Rental rental = new Rental(car, 10, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(3000m, rental.Price.BasePrice);
@@ -22,7 +22,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesPremiumExtraDaysTest()
         {
             Car car =new Car("0000AAA", "BMW 7", "BMW", CarType.Premium);
-            Rental rental = new Rental(car, 10);
+            Rental rental = new Rental(car, 10, "5334369R");
             rental.CalculatePriceAndSurcharges(12);
 
             Assert.Equal(3000m, rental.Price.BasePrice);
@@ -33,7 +33,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvFirstIntervalExactDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 2);
+            Rental rental = new Rental(car, 2, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(300m, rental.Price.BasePrice);
@@ -44,7 +44,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvFirstIntervalExtraDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 2);
+            Rental rental = new Rental(car, 2, "5334369R");
             rental.CalculatePriceAndSurcharges(3);
 
             Assert.Equal(300m, rental.Price.BasePrice);
@@ -55,7 +55,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvSecondIntervalExactDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 12);
+            Rental rental = new Rental(car, 12, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(1440m, rental.Price.BasePrice);
@@ -66,7 +66,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvSecondIntervalExtraDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 12);
+            Rental rental = new Rental(car, 12, "5334369R");
             rental.CalculatePriceAndSurcharges(40);
 
             Assert.Equal(1440m, rental.Price.BasePrice);
@@ -77,7 +77,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvThirdIntervalExactDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 40);
+            Rental rental = new Rental(car, 40, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(3000m, rental.Price.BasePrice);
@@ -88,7 +88,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSuvThirddIntervalExtraDaysTest()
         {
             Car car = new Car("1111AAA", "Nissan Juke", "Nissan", CarType.Suv);
-            Rental rental = new Rental(car, 40);
+            Rental rental = new Rental(car, 40, "5334369R");
             rental.CalculatePriceAndSurcharges(55);
 
             Assert.Equal(3000m, rental.Price.BasePrice);
@@ -99,7 +99,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSmallFirstIntervalExactDaysTest()
         {
             Car car = new Car("2222AAA", "Skoda Fabia", "Skoda", CarType.Small);
-            Rental rental = new Rental(car, 5);
+            Rental rental = new Rental(car, 5, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(250m, rental.Price.BasePrice);
@@ -110,7 +110,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSmallFirstIntervalExtraDaysTest()
         {
             Car car = new Car("2222AAA", "Skoda Fabia", "Skoda", CarType.Small);
-            Rental rental = new Rental(car, 5);
+            Rental rental = new Rental(car, 5, "5334369R");
             rental.CalculatePriceAndSurcharges(12);
 
             Assert.Equal(250m, rental.Price.BasePrice);
@@ -121,7 +121,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSmallSecondIntervalExactDaysTest()
         {
             Car car = new Car("2222AAA", "Skoda Fabia", "Skoda", CarType.Small);
-            Rental rental = new Rental(car, 30);
+            Rental rental = new Rental(car, 30, "5334369R");
             rental.CalculatePrice();
 
             Assert.Equal(900m, rental.Price.BasePrice);
@@ -132,7 +132,7 @@ namespace codeTestComTDD
         public void CalculatePriceAndSurchargesSmallSecondIntervalExtraDaysTest()
         {
             Car car = new Car("2222AAA", "Skoda Fabia", "Skoda", CarType.Small);
-            Rental rental = new Rental(car, 30);
+            Rental rental = new Rental(car, 30, "5334369R");
             rental.CalculatePriceAndSurcharges(40);
 
             Assert.Equal(900m, rental.Price.BasePrice);
