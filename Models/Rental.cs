@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace codeTestCom.Models
@@ -10,66 +11,106 @@ namespace codeTestCom.Models
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
         public string? CarId { get; set; }
-        public int NumOfContractedDays { get; set; }
+        
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [JsonConverter(typeof(CustomDateTimeConverter))]
+        public DateTime ContractDeliveryDate { get; set; }
 
-        public int NumOfDaysUsed { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [JsonConverter(typeof(CustomDateTimeConverter))]
+        public DateTime ContractReturnDate { get; set; }
+        
+        [JsonConverter(typeof(CustomDateTimeConverter))]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime ActualReturnDate { get; set; }
 
-        public Price? Price { get; set; }
+        public Price Price { get; set; }
         public CarType CarType { get; set; }
         public bool IsCarReturned { get; set; }
         public string UserId { get; set; }
 
-        [JsonConstructor]
         public Rental()
         {
-            // Constructor sin parámetros o inicialización personalizada
-            this.IsCarReturned = false;
         }
 
-        public Rental(Car car, int numOfContractedDays, string dni)
+        [JsonConstructor]
+
+        public Rental(string carId, CarType carType, string carPartitionKey, DateTime contractDeliveryDate, DateTime contractReturnDate, string userId)
+        {
+            this.Id = Guid.NewGuid().ToString();
+            this.CarId = carId;
+            this.CarType = carType;
+            this.ContractDeliveryDate = contractDeliveryDate;
+            this.ContractReturnDate = contractReturnDate;
+            this.PartitionKey = carPartitionKey;
+            this.IsCarReturned = false;
+            this.UserId = userId;
+            Price = CalculatePrice();
+        }
+
+        public Rental(RentalRQ rentalRq)
+        {
+            this.Id = Guid.NewGuid().ToString();
+            this.CarId = rentalRq.CarId;
+            this.CarType = (CarType)rentalRq.CarType;
+            this.ContractDeliveryDate = Utils.ConvertStringToDateTime(rentalRq.ContractDeliveryDate);
+            this.ContractReturnDate = Utils.ConvertStringToDateTime(rentalRq.ContractReturnDate);
+            this.PartitionKey = "TestPartition";
+            this.IsCarReturned = false;
+            this.UserId = rentalRq.UserId;
+            Price = CalculatePrice();
+        }
+
+        public Rental(RentalRQ rentalRq, Car car)
         {
             this.Id = Guid.NewGuid().ToString();
             this.CarId = car.Id;
             this.CarType = car.Type;
-            this.PartitionKey = car.PartitionKey + "#" + numOfContractedDays.ToString();
-            this.NumOfContractedDays = numOfContractedDays;
-            this.UserId = dni;
+            this.ContractDeliveryDate = Utils.ConvertStringToDateTime(rentalRq.ContractDeliveryDate);
+            this.ContractReturnDate = Utils.ConvertStringToDateTime(rentalRq.ContractReturnDate);
+            this.PartitionKey = car.PartitionKey;
             this.IsCarReturned = false;
+            this.UserId = rentalRq.UserId;
+            Price = CalculatePrice();
         }
 
         public Price CalculatePrice()
         {
-            decimal dayBasePrice;
+            decimal basePrice;
             Price = new Price();
+            int numOfContractedDays = (int)(ContractReturnDate - ContractDeliveryDate).TotalDays;
 
             switch (CarType)
             {
                 case CarType.Premium:
-                    dayBasePrice = Utils.PREMIUM_PRICE;
+                    basePrice = Utils.PREMIUM_PRICE;
                     break;
                 case CarType.Suv:
-                    if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
+                    if (numOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
                     {
-                        dayBasePrice = Utils.SUV_PRICE;
+                        basePrice = Utils.SUV_PRICE;
                     }
-                    else if (NumOfContractedDays <= Utils.SECOND_INTERVAL_DAYS)
+                    else if (numOfContractedDays <= Utils.SECOND_INTERVAL_DAYS)
                     {
-                        dayBasePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_SECOND_INTERVAL;
+                        basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_SECOND_INTERVAL;
                     }
                     else
                     {
-                        dayBasePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_THIRD_INTERVAL;
+                        basePrice = Utils.SUV_PRICE * Utils.SUV_PRICE_THIRD_INTERVAL;
                     }
 
                     break;
                 case CarType.Small:
-                    if (NumOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
+                    if (numOfContractedDays <= Utils.FIRST_INTERVAL_DAYS)
                     {
-                        dayBasePrice = Utils.SMALL_PRICE;
+                        basePrice = Utils.SMALL_PRICE;
                     }
                     else
                     {
-                        dayBasePrice = Utils.SMALL_PRICE * Utils.SMALL_PRICE_SECOND_INTERVAL;
+                        basePrice = Utils.SMALL_PRICE * Utils.SMALL_PRICE_SECOND_INTERVAL;
                     }
 
                     break;
@@ -77,23 +118,22 @@ namespace codeTestCom.Models
                     throw new NotImplementedException("Invalid car type.");
             }
 
-            decimal basePrice = dayBasePrice * NumOfContractedDays;
-
-            Price = new Price()
-            {
-                BasePrice = basePrice,
-                TotalPrice = basePrice
-            };
+            Price.BasePrice = basePrice * numOfContractedDays;
+            this.Price.TotalPrice = Price.BasePrice;
             return Price;
         }
 
-        public Price CalculatePriceAndSurcharges(int numOfDaysUsed)
+        public Price CalculatePriceAndSurcharges(string actualReturnDateStr)
         {
             decimal basePricePerDay;
             decimal extraDayPrice;
 
-            basePricePerDay = Price.BasePrice / this.NumOfContractedDays;
-            this.NumOfDaysUsed = numOfDaysUsed;
+            int numOfContractedDays = (int)(ContractReturnDate - ContractDeliveryDate).TotalDays;
+            ActualReturnDate = Utils.ConvertStringToDateTime(actualReturnDateStr);
+            int numOfDaysUsed = (int)(ActualReturnDate - ContractDeliveryDate).TotalDays;
+
+            basePricePerDay = Price.BasePrice / numOfContractedDays;
+           
 
             switch (CarType)
             {
@@ -111,9 +151,9 @@ namespace codeTestCom.Models
                     throw new NotImplementedException("Invalid car type.");
             }
 
-            if (NumOfDaysUsed > NumOfContractedDays)
+            if (numOfDaysUsed > numOfContractedDays)
             {
-                int extraDays = (NumOfDaysUsed - NumOfContractedDays);
+                int extraDays = (numOfDaysUsed - numOfContractedDays);
                 Price.Surcharges = basePricePerDay * extraDays + basePricePerDay * extraDays * extraDayPrice;
             }
 
@@ -136,7 +176,7 @@ namespace codeTestCom.Models
 
     public class RentMultipleCarRequest
     {
-        public Rental Rental { get; set; }
+        public RentalRQ RentalRQ { get; set; }
         public List<string> CarIds { get; set; }
     }
 }

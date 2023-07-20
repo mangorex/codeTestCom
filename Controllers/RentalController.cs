@@ -24,33 +24,36 @@ namespace codeTestCom.Controllers
         }
 
         [HttpGet("CalculatePrice")]
-        public ActionResult<Price> CalculatePrice(Rental rental)
+        public ActionResult<Price> CalculatePrice(RentalRQ rentalRQ)
         {
+            Rental rental = new Rental(rentalRQ);
             return rental.CalculatePrice();
         }
 
         [HttpGet("CalculatePriceAndSurcharges")]
-        public async Task<ActionResult<Price>> CalculatePriceAndSurcharges(string id, int numOfDaysUsed)
+        public async Task<ActionResult<Price>> CalculatePriceAndSurcharges(string carId, string actualReturnDate)
         {
-            Rental rentalDB = await _rentalRepository.GetRentalAsyncById(id);
+            Rental rentalDB = await _rentalRepository.GetRentalAsyncByCarId(carId);
 
-            if(string.IsNullOrWhiteSpace(rentalDB.Id))
+            if (string.IsNullOrWhiteSpace(rentalDB.Id))
             {
                 return null;
             }
 
-            return rentalDB.CalculatePriceAndSurcharges(numOfDaysUsed);
+            return rentalDB.CalculatePriceAndSurcharges(actualReturnDate);
         }
 
         [HttpPost("RentCar")]
-        public async Task<ActionResult<Rental>> RentCar(Rental rental)
+        public async Task<ActionResult<Rental>> RentCar(RentalRQ rentalRQ)
         {
-            if(rental.CarId == null)
+            Rental rental = new Rental();
+
+            if (rentalRQ.CarId == null)
             {
                 return NotFound("Car Id not found.");
             }
-            Car car = await _carRepository.GetCarAsyncById(rental.CarId);
-            User user = await _userRepository.GetUserAsyncByDni(rental.UserId);
+            Car car = await _carRepository.GetCarAsyncById(rentalRQ.CarId);
+            User user = await _userRepository.GetUserAsyncByDni(rentalRQ.UserId);
 
             if (car == null)
             {
@@ -66,24 +69,23 @@ namespace codeTestCom.Controllers
 
             car = await _carRepository.UpdateCarAsync(car, true);
 
-            if(car.IsRented)
+            if (car.IsRented)
             {
-                Rental rentalDB = new Rental(car, rental.NumOfContractedDays, user.Dni);
-
+                Rental rentalDB = new Rental(rentalRQ, car);
                 rental = await _rentalRepository.CreateRentalAsync(rentalDB);
                 await _userRepository.UpdateUserLoyaltyAsync(user, Utils.CalculateLoyaltyPoints(car.Type));
             }
             return rental;
         }
 
-
-
         [HttpPost("RentMultipleCar")]
         public async Task<ActionResult> RentMultipleCar([FromBody] RentMultipleCarRequest request)
         {
             List<object> dataList = new List<object>();
-            Rental rental = request.Rental;
-            User user = await _userRepository.GetUserAsyncByDni(rental.UserId);
+            RentalRQ rentalRQ = request.RentalRQ;
+            Rental rental = new Rental();
+
+            User user = await _userRepository.GetUserAsyncByDni(rentalRQ.UserId);
             decimal totalPrice = 0;
 
             foreach (string carId in request.CarIds)
@@ -98,11 +100,12 @@ namespace codeTestCom.Controllers
 
                     if (car.IsRented)
                     {
-                        Rental rentalDB = new Rental(car, rental.NumOfContractedDays, user.Dni);
+
+                        Rental rentalDB = new Rental(rentalRQ, car);
 
                         rental = await _rentalRepository.CreateRentalAsync(rentalDB);
                         await _userRepository.UpdateUserLoyaltyAsync(user, Utils.CalculateLoyaltyPoints(car.Type));
-                        dataList.Add(new {Precio = rental.Price.BasePrice, Car = rental.CarId });
+                        dataList.Add(new { Precio = rental.Price.BasePrice, Car = rental.CarId });
                         totalPrice += rental.Price.BasePrice;
                     }
                 }
@@ -119,7 +122,7 @@ namespace codeTestCom.Controllers
         }
 
         [HttpPost("ReturnCar")]
-        public async Task<ActionResult<Rental>> ReturnCar(string carId, int numOfDaysUsed)
+        public async Task<ActionResult<Rental>> ReturnCar(string carId, string actualReturnDate)
         {
             Car car = await _carRepository.GetCarAsyncById(carId);
 
@@ -134,8 +137,8 @@ namespace codeTestCom.Controllers
             }
 
             car = await _carRepository.UpdateCarAsync(car, false);
-            Rental rental = await _rentalRepository.GetRentalAsyncByCarId(carId);
-            rental.CalculatePriceAndSurcharges(numOfDaysUsed);
+            Rental rental = await _rentalRepository.GetRentalAsyncByCarId(car.Id);
+            rental.CalculatePriceAndSurcharges(actualReturnDate);
             return rental;
         }
     }

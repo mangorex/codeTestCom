@@ -1,4 +1,5 @@
 ﻿using codeTestCom.Models;
+using System.Globalization;
 
 namespace codeTestCom
 {
@@ -35,6 +36,8 @@ namespace codeTestCom
         public const int LOYALTY_SUV = 3;
         public const int LOYALTY_SMALL = 1;
 
+        public const string FORMAT_DATE = "dd/MM/yyyy";
+
         #region COMMON_METHODS
         public static int CalculateLoyaltyPoints(CarType carType)
         {
@@ -56,6 +59,13 @@ namespace codeTestCom
             }
 
             return loyaltyPoints;
+        }
+
+        public static DateTime ConvertStringToDateTime(string dateString)
+        {
+            DateTime dateTime;
+            DateTime.TryParseExact(dateString, FORMAT_DATE, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
+            return dateTime;
         }
         #endregion
         #endregion
