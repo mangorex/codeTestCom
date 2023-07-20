@@ -29,9 +29,42 @@ Characteristics:
 APIS:
 Rental:
 * CalculatePrice
+GET
+https://localhost:7272/api/Rental/CalculatePrice
+{
+  "UserId": "5334369R",
+  "ContractDeliveryDate": "10/08/2023",
+  "ContractReturnDate": "12/08/2023",
+  "PartitionKey":"Nissan",
+  "CarId": "1111AAA",
+  "CarType":"Suv"
+}
 * CalculatePriceAndSurcharges
+https://localhost:7272/api/Rental/CalculatePriceAndSurcharges?carId=2222AAA&actualReturnDate=19/09/2023
+
 * RentCar
+POST
+  https://localhost:7272/api/Rental/RentCar
+  {
+  "CarId": "2222AAA",
+  "UserId": "5331369R",
+  "ContractDeliveryDate": "10/08/2023",
+  "ContractReturnDate": "09/09/2023"
+}
 * RentMultipleCar
+  https://localhost:7272/api/Rental/RentMultipleCar
+  {
+  "rentalRq": {
+    "ContractDeliveryDate": "10/08/2023",
+    "ContractReturnDate": "09/09/2023",
+    "UserId": "5314369R"
+  },
+  "carIds": [
+    "1111BBB",
+    "3333AAA",
+    "0000BBB"
+  ]
+}
 * ReturnCar
 
 User:
