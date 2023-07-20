@@ -93,7 +93,7 @@ namespace codeTestCom.Repository
             return rental;
         }
 
-        public async Task<Rental> UpdateRentalAsync(Rental rental)
+        public async Task<Rental> UpdateRentalAsync(Rental rental, DateTime actualReturnDate)
         {
             ItemResponse<Rental> fieldResponse = await _container.ReadItemAsync<Rental>(rental.Id, new PartitionKey(rental.PartitionKey));
 
@@ -101,7 +101,7 @@ namespace codeTestCom.Repository
 
             // update is car returned from false to true
             item.IsCarReturned = true;
-
+            item.ActualReturnDate = actualReturnDate;
             // replace the item with the updated content
             fieldResponse = await _container.ReplaceItemAsync<Rental>(item, item.Id, new PartitionKey(item.PartitionKey));
             Console.WriteLine("Updated Rental [{0},{1}].\n \tBody is now: {2}\n", item.CarId, item.Id, fieldResponse.Resource);

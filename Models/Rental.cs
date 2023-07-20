@@ -25,7 +25,7 @@ namespace codeTestCom.Models
         [JsonConverter(typeof(CustomDateTimeConverter))]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime ActualReturnDate { get; set; }
+        public DateTime? ActualReturnDate { get; set; }
 
         public Price Price { get; set; }
         public CarType CarType { get; set; }
@@ -130,7 +130,7 @@ namespace codeTestCom.Models
 
             int numOfContractedDays = (int)(ContractReturnDate - ContractDeliveryDate).TotalDays;
             ActualReturnDate = Utils.ConvertStringToDateTime(actualReturnDateStr);
-            int numOfDaysUsed = (int)(ActualReturnDate - ContractDeliveryDate).TotalDays;
+            int numOfDaysUsed = (int)((DateTime)ActualReturnDate - ContractDeliveryDate).TotalDays;
 
             basePricePerDay = Price.BasePrice / numOfContractedDays;
            

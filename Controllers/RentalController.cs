@@ -139,6 +139,8 @@ namespace codeTestCom.Controllers
             car = await _carRepository.UpdateCarAsync(car, false);
             Rental rental = await _rentalRepository.GetRentalAsyncByCarId(car.Id);
             rental.CalculatePriceAndSurcharges(actualReturnDate);
+            await _rentalRepository.UpdateRentalAsync(rental, (DateTime)rental.ActualReturnDate);
+
             return rental;
         }
     }
