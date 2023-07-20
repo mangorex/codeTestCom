@@ -43,13 +43,17 @@ https://localhost:7272/api/Rental/CalculatePrice
   "CarType":"Suv"
 }
 * CalculatePriceAndSurcharges
+* 
   GET
   
 https://localhost:7272/api/Rental/CalculatePriceAndSurcharges?carId=2222AAA&actualReturnDate=19/09/2023
 
 * RentCar
+  
 POST
+
   https://localhost:7272/api/Rental/RentCar
+  
   {
   "CarId": "2222AAA",
   "UserId": "5331369R",
@@ -57,7 +61,11 @@ POST
   "ContractReturnDate": "09/09/2023"
 }
 * RentMultipleCar
+
+  POST
+
   https://localhost:7272/api/Rental/RentMultipleCar
+  
   {
   "rentalRq": {
     "ContractDeliveryDate": "10/08/2023",
@@ -72,12 +80,47 @@ POST
 }
 * ReturnCar
 
+POST
+
+https://localhost:7272/api/Rental/ReturnCar?carId=2222AAA&actualReturnDate=19/09/2023
+
 User:
 * GetUserByDni
+
+GET
+
+https://localhost:7272/api/User/GetUserByDni?dni=5331369R
+
 * AddUser
+
+POST
+
+https://localhost:7272/api/User/AddUser
+
+{
+    "dni": "5344469R",
+    "partitionKey": "Male",
+    "name": "Pepeee",
+    "surname": "Pacoee",
+    "age": 40,
+    "loyaltyPoints": 8,
+    "sex": "Male"
+}
 
 Car
 * Add Car
+
+POST
+
+https://localhost:7272/api/Car/AddCar
+
+{
+    "id": "6666AAA",
+    "name": "Ferrari Testa Rosa",
+    "brand": "Ferrari",
+    "type": "Premium"
+}
+
 ### Things to improve:
 * **Code with the best style of code (I think)**
 
