@@ -27,6 +27,9 @@ Characteristics:
 * Dependency injection with repositorios
 
 APIS:
+
+Here are the APIs and how to execute them using Postman or Swagger.
+
 Rental:
 * CalculatePrice
   
