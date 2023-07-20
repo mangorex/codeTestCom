@@ -43,7 +43,7 @@ https://localhost:7272/api/Rental/CalculatePrice
   "CarType":"Suv"
 }
 * CalculatePriceAndSurcharges
-* 
+ 
   GET
   
 https://localhost:7272/api/Rental/CalculatePriceAndSurcharges?carId=2222AAA&actualReturnDate=19/09/2023
@@ -78,6 +78,7 @@ POST
     "0000BBB"
   ]
 }
+
 * ReturnCar
 
 POST
