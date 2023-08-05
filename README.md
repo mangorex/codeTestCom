@@ -28,6 +28,8 @@ Characteristics:
 
 APIS:
 
+**IMPORTANT NOTE: This test would no longer work as I have deactivated the Azure Cosmos DB service, as it is a paid service.**
+
 Here are the APIs and how to execute them using Postman or Swagger.
 
 Rental:
